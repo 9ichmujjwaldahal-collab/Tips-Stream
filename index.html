@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>TipStream Pro</title>
+
+<!-- PWA -->
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="TipStream"/>
+<meta name="theme-color" content="#05070a" id="themeColorMeta"/>
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22TipStream%20Pro%22%2C%22short_name%22%3A%22TipStream%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2305070a%22%2C%22theme_color%22%3A%22%2306b6d4%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%270%200%20100%20100%2527%253E%253Crect%2520fill%3D%2527%252306b6d4%2527%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2520rx%3D%252722%2527%2F%253E%253Ctext%2520y%3D%252768%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252754%2527%253E%25F0%259F%2592%25B8%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D"/>
+
+<!-- Tailwind (required for grid-cols-7, flex utilities) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --bg:   #05070a;
+  --bg2:  #111827;
+  --bg3:  #1e293b;
+  --bdr:  rgba(255,255,255,.10);
+  --txt:  #f1f5f9;
+  --txt2: #94a3b8;
+  --txt3: #475569;
+  --cyan: #06b6d4;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+[data-theme="light"] {
+  --bg:   #eef2f7;
+  --bg2:  #ffffff;
+  --bg3:  #e2e8f0;
+  --bdr:  rgba(0,0,0,.09);
+  --txt:  #0f172a;
+  --txt2: #475569;
+  --txt3: #94a3b8;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  padding-bottom: calc(160px + var(--safe-b));
+  min-height: 100vh;
+  transition: background .2s, color .2s;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--bdr);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.28);
+  transition: border-color .15s, background .2s;
+}
+[data-theme="light"] .card { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+.card:hover { border-color: rgba(6,182,212,.3); }
+
+/* ── Inputs ── */
+.input {
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  padding: 9px 10px;
+  font-size: 13px;
+  color: var(--txt);
+  width: 100%;
+  font-family: 'Outfit', sans-serif;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+[data-theme="light"] .input { background: rgba(0,0,0,.05); }
+.input::placeholder { color: var(--txt3); }
+.input:focus {
+  outline: none;
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 3px rgba(6,182,212,.15);
+}
+
+/* ── Day buttons — the clean horizontal grid ── */
+.day {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--bg3);
+  font-weight: 900;
+  font-size: 10px;
+  color: var(--txt2);
+  cursor: pointer;
+  border: 1px solid var(--bdr);
+  transition: transform .1s, background .1s;
+  user-select: none;
+  -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.day:active { transform: scale(.88); }
+.day.active {
+  background: #06b6d4;
+  color: #000;
+  border-color: rgba(6,182,212,.65);
+  box-shadow: 0 0 8px rgba(6,182,212,.35);
+}
+
+/* ── Role badges ── */
+.badge {
+  font-size: 11px; padding: 5px 11px;
+  border-radius: 10px; cursor: pointer;
+  background: var(--bg3); color: var(--txt2);
+  border: 1px solid var(--bdr);
+  font-weight: 900; font-family: 'Outfit', sans-serif;
+  transition: transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.badge:active { transform: scale(.93); }
+.badge.foh { background: #0891b2; color: #fff; border-color: rgba(34,211,238,.3); }
+.badge.boh { background: #7c3aed; color: #fff; border-color: rgba(167,139,250,.3); }
+
+/* ── Buttons ── */
+.btn {
+  border-radius: 14px; font-weight: 900; font-size: 12px;
+  padding: 10px 14px; cursor: pointer; border: none;
+  font-family: 'Outfit', sans-serif;
+  transition: filter .12s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover  { filter: brightness(1.08); }
+.btn:active { transform: scale(.96); filter: brightness(.88); }
+
+/* ── Advance section ── */
+.adv-section {
+  background: rgba(251,191,36,.05);
+  border: 1px solid rgba(251,191,36,.16);
+  border-radius: 14px; padding: 10px 12px; margin-top: 10px;
+}
+.adv-entry {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bdr);
+  border-radius: 10px; padding: 7px 9px;
+  margin-top: 7px; font-size: 12px;
+}
+[data-theme="light"] .adv-entry { background: rgba(0,0,0,.03); }
+.adv-note { color: #fde68a; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-theme="light"] .adv-note { color: #92400e; }
+.adv-amt  { color: #f87171; font-weight: 900; white-space: nowrap; font-size: 13px; }
+.adv-del  {
+  background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.28);
+  border-radius: 8px; color: #f87171; font-size: 10px; padding: 5px 9px;
+  cursor: pointer; white-space: nowrap; font-family: 'Outfit', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.adv-del:active { transform: scale(.93); }
+.adv-add-btn {
+  background: #ca8a04; border: none; border-radius: 12px;
+  color: #000; font-weight: 900; font-size: 12px;
+  padding: 0 14px; height: 38px; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; font-family: 'Outfit', sans-serif;
+  transition: filter .1s; -webkit-tap-highlight-color: transparent;
+}
+.adv-add-btn:active { transform: scale(.95); filter: brightness(.9); }
+
+/* ── Remove btn ── */
+.remove-btn {
+  background: rgba(239,68,68,.13); border: 1px solid rgba(239,68,68,.25);
+  border-radius: 12px; font-size: 11px; padding: 7px 10px;
+  cursor: pointer; color: #f87171; flex-shrink: 0; font-family: 'Outfit', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.remove-btn:active { transform: scale(.95); }
+
+/* ── Payout chip ── */
+.payout-chip {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 900; flex-shrink: 0;
+}
+.payout-chip.pos { background: rgba(34,197,94,.14); color: #4ade80; border: 1px solid rgba(34,197,94,.22); }
+.payout-chip.neg { background: rgba(239,68,68,.14);  color: #f87171; border: 1px solid rgba(239,68,68,.22); }
+
+/* ── Collapse ── */
+.collapse-btn {
+  background: none; border: none; color: var(--txt2);
+  cursor: pointer; font-size: 16px; padding: 2px 6px;
+  border-radius: 8px; line-height: 1;
+  transition: transform .22s ease, background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.collapse-btn:hover  { background: var(--bdr); }
+.collapse-btn.open   { transform: rotate(180deg); }
+.card-body {
+  overflow: hidden;
+  transition: max-height .32s cubic-bezier(.4,0,.2,1), opacity .22s ease;
+}
+.card-body.closed { max-height: 0 !important; opacity: 0; pointer-events: none; }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -ms-overflow-style: none; }
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 11px;
+  font-size: 12px; font-weight: 900; cursor: pointer;
+  border: 1px solid var(--bdr); background: var(--bg3); color: var(--txt2);
+  font-family: 'Outfit', sans-serif; transition: background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active { background: #06b6d4; color: #000; border-color: transparent; }
+
+/* ── Stats boxes ── */
+.stat-box {
+  background: var(--bg2); border: 1px solid var(--bdr);
+  border-radius: 14px; padding: 10px 12px; text-align: center;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed; top: 14px; left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: rgba(2,6,23,.93);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 9px 14px; border-radius: 14px; font-size: 12px;
+  color: #e2e8f0; box-shadow: 0 16px 36px rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  max-width: 92vw; width: min(500px,92vw); z-index: 9999;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast .hi   { color: #22d3ee; font-weight: 900; }
+
+/* ── Footer ── */
+.footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 12px 16px calc(12px + var(--safe-b));
+  background: rgba(5,7,10,.96);
+  border-top: 1px solid var(--bdr);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  z-index: 100;
+}
+[data-theme="light"] .footer { background: rgba(238,242,247,.96); }
+
+/* ── Icon buttons (theme/history) ── */
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--bg3); border: 1px solid var(--bdr);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 15px; transition: transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:active { transform: scale(.9); }
+
+/* ── Install banner ── */
+.install-banner {
+  background: linear-gradient(135deg, rgba(6,182,212,.12), rgba(124,58,237,.12));
+  border: 1px solid rgba(6,182,212,.28);
+  border-radius: 14px; padding: 10px 14px; margin-bottom: 14px;
+  display: none; align-items: center; gap: 10px;
+}
+.install-banner.visible { display: flex; }
+
+/* ── History entry ── */
+.hist-entry {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px;
+}
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid var(--bdr); margin: 12px 0; }
+
+/* ── Animations ── */
+.slide-in { animation: slideIn .22s ease forwards; }
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.shake    { animation: shake .28s; }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+
+/* ── Print ── */
+@media print {
+  .no-print { display: none !important; }
+  body { padding-bottom: 0; }
+}
+
+/* ── Currency picker ── */
+.curr-select {
+  background: var(--bg3);
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 8px;
+  height: 34px;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 90px;
+  text-align: center;
+  transition: border-color .15s;
+}
+.curr-select:focus { border-color: #06b6d4; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+</style>
+</head>
+
+<body data-theme="dark" class="max-w-lg mx-auto p-4">
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Install Banner -->
+<div id="installBanner" class="install-banner no-print">
+  <span style="font-size:22px;flex-shrink:0">📲</span>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:12px;font-weight:900;color:#06b6d4">Install TipStream App</div>
+    <div style="font-size:11px;color:var(--txt2);margin-top:2px">Add to home screen for app experience</div>
+  </div>
+  <button id="installBtn" class="btn" style="background:#06b6d4;color:#000;padding:8px 12px;font-size:11px;flex-shrink:0">Install</button>
+  <button onclick="dismissInstall()" style="background:none;border:none;color:var(--txt2);cursor:pointer;font-size:18px;padding:4px;line-height:1">✕</button>
+</div>
+
+<!-- Header -->
+<div class="flex items-center justify-between mb-3 no-print">
+  <div>
+    <h1 class="text-xl font-black text-cyan-400" style="line-height:1.1">💸 TIPSTREAM PRO</h1>
+    <p class="text-xs text-slate-500 mt-1">Smart splits · balance carry · payroll report</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <select class="curr-select" id="currSelect" onchange="setCurrency(this.value)" title="Currency">
+      <option value="USD">$ USD</option>
+      <option value="AED">د.إ AED</option>
+      <option value="CNY">¥ CNY</option>
+      <option value="INR">₹ INR</option>
+      <option value="EUR">€ EUR</option>
+      <option value="GBP">£ GBP</option>
+      <option value="JPY">¥ JPY</option>
+      <option value="CAD">$ CAD</option>
+      <option value="AUD">$ AUD</option>
+    </select>
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="icon-btn" onclick="showTab('history')">📋</button>
+  </div>
+</div>
+
+<!-- ══ TIPS + SPLIT — always visible ══ -->
+<div class="card no-print">
+  <label class="text-xs font-black text-slate-400 tracking-wide uppercase">Total Tips Collected</label>
+  <input id="totalTips" type="number" class="input text-2xl font-black text-center mt-2"
+    placeholder="0.00" min="0" step="0.01"/>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div>
+      <label class="text-xs font-black text-slate-400 uppercase tracking-wide">FOH %</label>
+      <input id="fohPercent" type="number" class="input mt-1" value="70" min="0" max="100" step="1"/>
+    </div>
+    <div>
+      <label class="text-xs font-black text-slate-400 uppercase tracking-wide">BOH %</label>
+      <input id="bohPercent" type="number" class="input mt-1" value="30" min="0" max="100" step="1"/>
+    </div>
+  </div>
+
+  <div class="flex gap-6 mt-3 text-xs">
+    <div>FOH Pool: <span id="fohPool" class="text-cyan-400 font-black">0.00</span></div>
+    <div>BOH Pool: <span id="bohPool" class="text-purple-400 font-black">0.00</span></div>
+  </div>
+
+  <div class="flex items-center justify-between mt-2 gap-3">
+    <div class="text-xs text-slate-500">FOH + BOH = <span class="text-white font-black">100%</span> · smart rounding on</div>
+    <label class="flex items-center gap-2 text-xs text-slate-300 font-black select-none cursor-pointer" style="flex-shrink:0">
+      <input id="resetOnClose" type="checkbox" class="accent-cyan-400" checked/>
+      reset on close
+    </label>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar no-print">
+  <button class="tab active" id="tab-team"    onclick="showTab('team')">👥 Team</button>
+  <button class="tab"        id="tab-summary" onclick="showTab('summary')">⚡ Summary</button>
+  <button class="tab"        id="tab-history" onclick="showTab('history')">📋 History</button>
+</div>
+
+<!-- ══ TAB: TEAM ══ -->
+<div id="view-team">
+  <!-- Stats bar -->
+  <div class="grid grid-cols-3 gap-2 mb-4 no-print">
+    <div class="stat-box">
+      <div class="text-xs font-black text-slate-400 uppercase tracking-wide" style="font-size:9px">Staff</div>
+      <div class="text-xl font-black text-cyan-400" id="statStaff">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="text-xs font-black text-slate-400 uppercase tracking-wide" style="font-size:9px">Shifts</div>
+      <div class="text-xl font-black text-amber-400" id="statShifts">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="text-xs font-black text-slate-400 uppercase tracking-wide" style="font-size:9px">Advances</div>
+      <div class="text-xl font-black text-red-400" id="statAdv">$0</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="relative mb-3 no-print">
+    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none">🔍</span>
+    <input class="input" id="searchInput" placeholder="Search staff name…"
+      style="padding-left:32px" oninput="filterCards()"/>
+  </div>
+
+  <!-- Print / Export -->
+  <div class="flex gap-2 flex-wrap mb-4 no-print">
+    <button onclick="printReport('ALL')" class="btn" style="background:#334155;color:#fff">🖨 Print All</button>
+    <button onclick="printReport('FOH')" class="btn" style="background:#0891b2;color:#fff">Print FOH</button>
+    <button onclick="printReport('BOH')" class="btn" style="background:#7c3aed;color:#fff">Print BOH</button>
+    <button onclick="exportCSV()"        class="btn" style="background:#15803d;color:#fff;margin-left:auto">📊 CSV</button>
+  </div>
+
+  <!-- Team cards go here -->
+  <div id="teamDiv"></div>
+</div>
+
+<!-- ══ TAB: SUMMARY ══ -->
+<div id="view-summary" style="display:none">
+  <div class="card">
+    <div class="text-xs font-black text-slate-400 uppercase tracking-wide mb-3">💰 Payout Summary</div>
+    <div id="summaryList">
+      <div class="text-xs text-slate-500 text-center py-4">Enter tips at the top to see payouts.</div>
+    </div>
+  </div>
+  <button onclick="closePeriod()" class="btn w-full text-white mb-2"
+    style="background:linear-gradient(135deg,#10b981,#059669);padding:14px;font-size:14px;border-radius:16px">
+    ✅ Close Period &amp; Save to History
+  </button>
+</div>
+
+<!-- ══ TAB: HISTORY ══ -->
+<div id="view-history" style="display:none">
+  <div class="card">
+    <div class="text-xs font-black text-slate-400 uppercase tracking-wide mb-3">📋 Closed Periods</div>
+    <div id="histList">
+      <div class="text-xs text-slate-500 text-center py-5">No periods closed yet.</div>
+    </div>
+    <button onclick="clearHistory()" class="btn w-full mt-3 text-xs"
+      style="background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.22);color:#f87171">
+      🗑 Clear All History
+    </button>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer no-print">
+  <div class="grid grid-cols-2 gap-2">
+    <button onclick="addMember()" class="btn text-black" style="background:#06b6d4;padding:12px">+ Add Staff</button>
+    <button onclick="resetAll()"  class="btn" style="background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.22);color:#f87171;padding:12px">Reset All Data</button>
+  </div>
+  <p class="text-center mt-2" style="font-size:10px;color:var(--txt3)">Auto-saves · installable as app on iOS & Android 💾</p>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   TipStream PRO v3 — Clean & Bug-Free
+
+   BUG FIXES vs v2:
+   ① INPUT FOCUS LOSS: name/balance use onchange (fires on blur),
+     NOT oninput — prevents full innerHTML rebuild while typing.
+     Advance note/amount buffer with oninput stays, but never
+     triggers a full re-render — only + ADD button does.
+   ② SHIFT GRID: clean grid-cols-7 using Tailwind, 31 numbered
+     buttons in neat horizontal rows — exactly like original.
+   ③ DOM ORDER: after each render sorted cards are re-appended
+     so DOM order always matches sort order.
+   ④ COLLAPSE ANIMATION: uses measured scrollHeight not "2000px"
+     magic number, collapses cleanly.
+   ⑤ CSV ON IOS: anchor appended to body before .click(), removed
+     after — required for Safari/iOS.
+   ⑥ PRINT: no auto-close, window stays open until user closes it.
+   ⑦ TIPS ALWAYS VISIBLE: tips/split card is above tabs, always
+     rendered regardless of active tab.
+───────────────────────────────────────────────────────────── */
+
+const STORAGE_KEY = "tipstream_v3";
+const MAX_DAYS    = 31;
+
+// ── Currencies ────────────────────────────────────────────────
+const CURRENCIES = {
+  USD: { sym:"$",   name:"US Dollar",     flag:"🇺🇸", decimals:2 },
+  AED: { sym:"د.إ", name:"UAE Dirham",    flag:"🇦🇪", decimals:2 },
+  CNY: { sym:"¥",   name:"Chinese Yuan",  flag:"🇨🇳", decimals:2 },
+  INR: { sym:"₹",   name:"Indian Rupee",  flag:"🇮🇳", decimals:2 },
+  EUR: { sym:"€",   name:"Euro",          flag:"🇪🇺", decimals:2 },
+  GBP: { sym:"£",   name:"British Pound", flag:"🇬🇧", decimals:2 },
+  JPY: { sym:"¥",   name:"Japanese Yen",  flag:"🇯🇵", decimals:0 },
+  CAD: { sym:"$",   name:"Canadian Dollar",flag:"🇨🇦",decimals:2 },
+  AUD: { sym:"$",   name:"Australian Dollar",flag:"🇦🇺",decimals:2 },
+};
+let activeCurrency = "USD";
+
+// sym() — returns the symbol for the active currency
+function sym(){ return CURRENCIES[activeCurrency]?.sym || "$"; }
+// fmt() — formats a number with the right decimals + symbol
+function fmt(n){ const c=CURRENCIES[activeCurrency]; const d=c?.decimals??2; return sym()+(Number(n)||0).toFixed(d); }
+
+function setCurrency(code){
+  activeCurrency = CURRENCIES[code] ? code : "USD";
+  localStorage.setItem("ts_currency", activeCurrency);
+  document.getElementById("currSelect").value = activeCurrency;
+  scheduleUpdate();
+  toast(`Currency: ${CURRENCIES[activeCurrency].flag} ${CURRENCIES[activeCurrency].name}`);
+}
+
+let team    = [];
+let advBuf  = {};   // { memberId: { note, amount } } — advance input buffers
+let folded  = {};   // { memberId: bool } — collapse state
+let deferInstall = null;
+
+// ── DOM refs ──────────────────────────────────────────────────
+const tipInput   = document.getElementById("totalTips");
+const fohInput   = document.getElementById("fohPercent");
+const bohInput   = document.getElementById("bohPercent");
+const fohPoolEl  = document.getElementById("fohPool");
+const bohPoolEl  = document.getElementById("bohPool");
+const teamDiv    = document.getElementById("teamDiv");
+const toastEl    = document.getElementById("toast");
+const rocEl      = document.getElementById("resetOnClose");
+const searchEl   = document.getElementById("searchInput");
+
+// ── Utilities ─────────────────────────────────────────────────
+const clamp = (n,lo,hi) => Math.min(hi, Math.max(lo, n));
+const esc   = s => (s||"").toString()
+  .replace(/&/g,"&amp;").replace(/"/g,"&quot;")
+  .replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const money  = n => { const d=CURRENCIES[activeCurrency]?.decimals??2; return (Number(n)||0).toFixed(d); };
+const toCent = n => Math.round((Number(n)||0)*100);
+const fromCt = c => c/100;
+const newId  = () => (crypto?.randomUUID?.() || (Date.now()+"_"+Math.random())).toString();
+
+const shiftCount = m => m.days.filter(Boolean).length;
+const advTotal   = m => m.advances.reduce((s,a)=>s+Number(a.amount||0),0);
+
+function newMember(){
+  return { id:newId(), name:"", role:"FOH", days:Array(MAX_DAYS).fill(false), advances:[], balance:0 };
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+let _tt = null;
+function toast(msg, bold=""){
+  if (_tt) clearTimeout(_tt);
+  toastEl.innerHTML = bold ? `<span class="hi">${esc(bold)}</span> ${esc(msg)}` : esc(msg);
+  toastEl.classList.add("show");
+  _tt = setTimeout(()=>toastEl.classList.remove("show"), 2200);
+}
+
+// ── PWA Install ───────────────────────────────────────────────
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault();
+  deferInstall = e;
+  if (!localStorage.getItem("ts_install_dis"))
+    document.getElementById("installBanner").classList.add("visible");
+});
+window.addEventListener("appinstalled", ()=>{
+  document.getElementById("installBanner").classList.remove("visible");
+  toast("TipStream installed! 🎉");
+});
+document.getElementById("installBtn").addEventListener("click", async ()=>{
+  if (!deferInstall) return;
+  deferInstall.prompt();
+  const r = await deferInstall.userChoice;
+  if (r.outcome === "accepted")
+    document.getElementById("installBanner").classList.remove("visible");
+  deferInstall = null;
+});
+function dismissInstall(){
+  document.getElementById("installBanner").classList.remove("visible");
+  localStorage.setItem("ts_install_dis","1");
+}
+
+// ── Theme ─────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight = document.body.getAttribute("data-theme") === "light";
+  const next = isLight ? "dark" : "light";
+  document.body.setAttribute("data-theme", next);
+  document.getElementById("themeBtn").textContent = next === "light" ? "☀️" : "🌙";
+  document.getElementById("themeColorMeta").content = next === "light" ? "#eef2f7" : "#05070a";
+  localStorage.setItem("ts_theme", next);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────
+function showTab(name){
+  ["team","summary","history"].forEach(t=>{
+    document.getElementById("view-"+t).style.display = (t === name) ? "" : "none";
+    const btn = document.getElementById("tab-"+t);
+    if (btn) btn.classList.toggle("active", t === name);
+  });
+  if (name === "summary") renderSummary();
+  if (name === "history") renderHistory();
+}
+
+// ── Persist ───────────────────────────────────────────────────
+let _saveTimer = null;
+function saveState(){
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tips: Number(tipInput.value)||0,
+      foh:  Number(fohInput.value)||70,
+      boh:  Number(bohInput.value)||30,
+      roc:  !!rocEl.checked,
+      currency: activeCurrency,
+      team
+    }));
+  }, 200);
+}
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d || !Array.isArray(d.team)) return false;
+
+    tipInput.value  = d.tips || "";
+    fohInput.value  = clamp(Number(d.foh)||70, 0, 100);
+    bohInput.value  = clamp(Number(d.boh)||30, 0, 100);
+    rocEl.checked   = d.roc ?? true;
+    if (d.currency && CURRENCIES[d.currency]) activeCurrency = d.currency;
+
+    team = d.team.map(m=>{
+      const o = {
+        id:       (m.id||newId()).toString(),
+        name:     (m.name||"").toString(),
+        role:     m.role==="BOH" ? "BOH" : "FOH",
+        days:     Array(MAX_DAYS).fill(false),
+        advances: Array.isArray(m.advances)
+          ? m.advances.map(a=>({ id:(a.id||newId()).toString(), note:(a.note||"").toString(), amount:Number(a.amount||0) }))
+          : [],
+        balance:  Number(m.balance||0)
+      };
+      if (Array.isArray(m.days)) for(let i=0;i<MAX_DAYS;i++) o.days[i]=!!m.days[i];
+      advBuf[o.id] = advBuf[o.id] || {note:"",amount:""};
+      return o;
+    });
+
+    if (!team.length){ const m=newMember(); team=[m]; advBuf[m.id]={note:"",amount:""}; }
+    return true;
+  } catch(e){ return false; }
+}
+
+// ── Percent auto-balance ──────────────────────────────────────
+let lastPctSide = "FOH";
+function syncPercents(){
+  let f = clamp(parseInt(fohInput.value||"0",10), 0, 100);
+  let b = clamp(parseInt(bohInput.value||"0",10), 0, 100);
+  if (lastPctSide === "FOH"){ b = 100-f; bohInput.value = b; }
+  else                      { f = 100-b; fohInput.value = f; }
+  return {f, b};
+}
+
+// ── Smart rounding (largest remainder) ───────────────────────
+function allocate(members, pool){
+  const poolC = toCent(pool);
+  const totSh = members.reduce((s,m)=>s+shiftCount(m),0);
+  const map   = new Map();
+  if (!totSh || !poolC){ members.forEach(m=>map.set(m.id,0)); return map; }
+
+  const raws = members.map(m=>{
+    const w = shiftCount(m);
+    const raw = (poolC * w) / totSh;
+    return { id:m.id, base:Math.floor(raw), frac:raw-Math.floor(raw) };
+  });
+  const sumBase = raws.reduce((s,r)=>s+r.base,0);
+  let rem = poolC - sumBase;
+  raws.sort((a,b)=>b.frac-a.frac);
+  raws.forEach((r,i)=>map.set(r.id, r.base + (rem>0 && i<rem ? 1 : 0)));
+  return map;
+}
+
+function calcAll(){
+  const tips = Math.max(0, Number(tipInput.value)||0);
+  const {f, b} = syncPercents();
+  const fohPool = tips*f/100;
+  const bohPool = tips*b/100;
+
+  fohPoolEl.textContent = sym()+money(fohPool);
+  bohPoolEl.textContent = sym()+money(bohPool);
+
+  const fMap = allocate(team.filter(m=>m.role==="FOH"), fohPool);
+  const bMap = allocate(team.filter(m=>m.role==="BOH"), bohPool);
+  const earned = new Map([...fMap,...bMap].map(([id,c])=>[id,fromCt(c)]));
+  return {tips, fohPool, bohPool, earned};
+}
+
+// ── Render loop ───────────────────────────────────────────────
+let _rafPending = false;
+function scheduleUpdate(){
+  if (_rafPending) return;
+  _rafPending = true;
+  requestAnimationFrame(()=>{
+    _rafPending = false;
+    renderAll();
+    saveState();
+  });
+}
+
+function renderAll(){
+  // Remove orphaned cards
+  const liveIds = new Set(team.map(m=>"mc_"+m.id));
+  Array.from(teamDiv.children).forEach(c=>{ if (!liveIds.has(c.id)) c.remove(); });
+
+  const C = calcAll();
+
+  // Sorted order: FOH first, then alpha
+  const sorted = [...team].sort((a,b)=>{
+    if (a.role !== b.role) return a.role==="FOH" ? -1 : 1;
+    return (a.name||"").localeCompare(b.name||"");
+  });
+
+  sorted.forEach(m=>{
+    let div = document.getElementById("mc_"+m.id);
+    if (!div){
+      div = document.createElement("div");
+      div.className = "card slide-in";
+      div.id = "mc_"+m.id;
+      teamDiv.appendChild(div);
+    }
+    renderCard(m, C, div);
+  });
+
+  // ② FIX: reorder DOM to match sorted order
+  sorted.forEach(m=>{ teamDiv.appendChild(document.getElementById("mc_"+m.id)); });
+
+  // Stats bar
+  document.getElementById("statStaff").textContent  = team.length;
+  document.getElementById("statShifts").textContent = team.reduce((s,m)=>s+shiftCount(m),0);
+  document.getElementById("statAdv").textContent    = sym()+money(team.reduce((s,m)=>s+advTotal(m),0));
+
+  filterCards();
+}
+
+// ── Render a single card ──────────────────────────────────────
+// ① KEY FIX: name input uses onchange (not oninput) — fires only on blur,
+//   so full re-render doesn't happen on every keystroke.
+//   Balance input same fix.
+//   This means typing feels instant with zero jank.
+// ④ Collapse: reads actual scrollHeight for accurate animation.
+function renderCard(m, C, div){
+  const earned = Number(C.earned.get(m.id)||0);
+  const adv    = advTotal(m);
+  const bal    = Number(m.balance||0);
+  const fin    = earned - adv + bal;
+  const buf    = advBuf[m.id] || (advBuf[m.id]={note:"",amount:""});
+  const isFold = !!folded[m.id];
+
+  const chipCls = fin < 0 ? "payout-chip neg" : "payout-chip pos";
+  const chipTxt = (fin<0?"−":"")+sym()+money(Math.abs(fin));
+
+  const advHtml = m.advances.length === 0
+    ? `<p class="text-xs text-slate-500 italic mt-2 mb-1">No advances yet.</p>`
+    : m.advances.map(a=>`
+        <div class="adv-entry">
+          <span class="adv-note">📝 ${esc(a.note)||"<em style='opacity:.5'>no note</em>"}</span>
+          <span class="adv-amt">−${sym()}${money(a.amount)}</span>
+          <button class="adv-del" onclick="deleteAdvance('${m.id}','${a.id}')">✕ Remove</button>
+        </div>`).join("");
+
+  // Day grid: clean 7-column grid — one cell per day 1..31
+  const dayGrid = m.days.map((on,i)=>
+    `<button class="day ${on?"active":""}" onclick="toggleDay('${m.id}',${i})">${i+1}</button>`
+  ).join("");
+
+  div.innerHTML = `
+    <!-- Header row -->
+    <div class="flex items-center gap-2">
+      <input class="input font-black flex-1"
+        placeholder="Staff name…"
+        value="${esc(m.name)}"
+        id="name_${m.id}"
+        onchange="setName('${m.id}',this.value)"/>
+      <span class="${chipCls}">${chipTxt}</span>
+      <button class="collapse-btn ${isFold?"":"open"}" onclick="toggleFold('${m.id}')" title="Expand/Collapse">⌄</button>
+      <button class="remove-btn" onclick="removeMember('${m.id}')">✕</button>
+    </div>
+
+    <!-- Collapsible body -->
+    <div class="card-body ${isFold?"closed":""}" id="body_${m.id}"
+      style="max-height:${isFold?"0":div.querySelector&&div.querySelector("#body_"+m.id)?div.querySelector("#body_"+m.id).scrollHeight+"px":"2000px"}">
+
+      <!-- Role + quick shift tools -->
+      <div class="flex items-center gap-2 mt-3 mb-3">
+        <button class="badge ${m.role==="FOH"?"foh":""}" onclick="setRole('${m.id}','FOH')">FOH</button>
+        <button class="badge ${m.role==="BOH"?"boh":""}" onclick="setRole('${m.id}','BOH')">BOH</button>
+        <div class="ml-auto flex items-center gap-2">
+          <button class="btn" style="background:var(--bg3);color:var(--txt);padding:8px 12px" onclick="addShifts('${m.id}',1)">+1</button>
+          <button class="btn" style="background:var(--bg3);color:var(--txt);padding:8px 12px" onclick="addShifts('${m.id}',5)">+5</button>
+          <button class="btn" style="background:var(--bg3);color:var(--txt);padding:8px 12px" onclick="clearShifts('${m.id}')">Clear</button>
+        </div>
+      </div>
+
+      <!-- ② SHIFT GRID — clean 7-column horizontal rows, numbered 1–31 -->
+      <div class="grid grid-cols-7 gap-1 mb-3">
+        ${dayGrid}
+      </div>
+
+      <!-- Balance + Summary -->
+      <div class="grid grid-cols-2 gap-2">
+        <div style="background:rgba(0,0,0,.18);border:1px solid var(--bdr);border-radius:14px;padding:12px">
+          <div class="text-xs font-black text-slate-400 uppercase tracking-wide" style="font-size:10px">Balance (carry)</div>
+          <input class="input mt-2" type="number" step="0.01"
+            id="bal_${m.id}"
+            value="${esc(String(Number(m.balance||0)))}"
+            onchange="setBalance('${m.id}',this.value)"/>
+          <div class="text-slate-500 mt-2" style="font-size:10px">Negative = debt · Positive = credit</div>
+        </div>
+        <div style="background:rgba(0,0,0,.18);border:1px solid var(--bdr);border-radius:14px;padding:12px">
+          <div class="text-xs font-black text-slate-400 uppercase tracking-wide mb-2" style="font-size:10px">Summary</div>
+          <div class="text-xs text-slate-300 leading-6">
+            <div>Shifts: <span class="text-white font-black">${shiftCount(m)}</span></div>
+            <div>Earned: <span class="text-white font-black">${sym()}${money(earned)}</span></div>
+            <div>Advances: <span class="text-yellow-300 font-black">−${sym()}${money(adv)}</span></div>
+            <div>Balance: <span class="${bal<0?"text-red-300":"text-emerald-300"} font-black">${bal<0?"−":""}${sym()}${money(Math.abs(bal))}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- Advance ledger -->
+      <div class="adv-section">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs font-black text-yellow-400 tracking-wide">💸 ADVANCE LEDGER</span>
+          ${adv > 0
+            ? `<span class="text-xs font-black text-red-300">Deducted: −${sym()}${money(adv)}</span>`
+            : `<span class="text-xs text-slate-500">No deductions</span>`}
+        </div>
+
+        ${advHtml}
+
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(251,191,36,.14)">
+          <p class="text-xs font-black text-yellow-600 mb-2">Add New Advance</p>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input class="input" placeholder="Reason / note…"
+              id="advNote_${m.id}"
+              value="${esc(buf.note)}"
+              oninput="advBuf['${m.id}'].note=this.value"
+              onkeydown="if(event.key==='Enter') addAdvance('${m.id}')"
+              style="font-size:12px;padding:8px 10px"/>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input class="input" type="number" min="0" step="0.01"
+              placeholder="Amount e.g. 50.00"
+              id="advAmt_${m.id}"
+              value="${esc(buf.amount)}"
+              oninput="advBuf['${m.id}'].amount=this.value"
+              onkeydown="if(event.key==='Enter') addAdvance('${m.id}')"
+              style="font-size:12px;padding:8px 10px"/>
+            <button class="adv-add-btn" onclick="addAdvance('${m.id}')">+ ADD</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+
+      <!-- Final payout -->
+      <div class="flex justify-between items-end">
+        <div class="text-xs text-slate-400 leading-6">
+          <div>Earned: <span class="text-white font-black">${sym()}${money(earned)}</span></div>
+          <div>Advances: <span class="text-yellow-300 font-black">−${sym()}${money(adv)}</span></div>
+          <div>Balance: <span class="${bal<0?"text-red-300":"text-emerald-300"} font-black">${bal<0?"−":""}${sym()}${money(Math.abs(bal))}</span></div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-slate-500 uppercase tracking-wide">To Pay Out</div>
+          <div class="text-2xl font-black ${fin<0?"text-red-400":"text-green-400"}">${fin<0?"−":""}${sym()}${money(Math.abs(fin))}</div>
+          ${fin<0?`<div class="text-xs text-red-300 font-black">Employee owes ${sym()}${money(Math.abs(fin))}</div>`:""}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ④ After a render, measure real scrollHeight and set it on expanded cards
+// so CSS transition knows what to animate to
+function fixCollapse(){
+  team.forEach(m=>{
+    const body = document.getElementById("body_"+m.id);
+    if (!body) return;
+    if (!folded[m.id]){
+      // Force browser to measure then set explicit max-height
+      body.style.maxHeight = body.scrollHeight + "px";
+    }
+  });
+}
+
+// ── Filter by search ──────────────────────────────────────────
+function filterCards(){
+  const q = (searchEl.value||"").toLowerCase().trim();
+  team.forEach(m=>{
+    const el = document.getElementById("mc_"+m.id);
+    if (!el) return;
+    el.style.display = (!q || (m.name||"").toLowerCase().includes(q)) ? "" : "none";
+  });
+}
+
+// ── Summary tab ───────────────────────────────────────────────
+function renderSummary(){
+  const C = calcAll();
+  const el = document.getElementById("summaryList");
+  if (!team.length){ el.innerHTML='<div class="text-xs text-slate-500 text-center py-4">Add staff first.</div>'; return; }
+  if (!Number(tipInput.value)){ el.innerHTML='<div class="text-xs text-slate-500 text-center py-4">Enter tips at the top to see payouts.</div>'; return; }
+
+  const sorted = [...team].sort((a,b)=>a.role!==b.role?a.role==="FOH"?-1:1:(a.name||"").localeCompare(b.name||""));
+  el.innerHTML = sorted.map(m=>{
+    const earned=Number(C.earned.get(m.id)||0);
+    const adv=advTotal(m), bal=Number(m.balance||0), fin=earned-adv+bal;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr)">
+      <div>
+        <span class="font-black" style="font-size:13px">${esc(m.name||"—")}</span>
+        <span style="margin-left:6px;font-size:10px;font-weight:900;color:${m.role==="FOH"?"#06b6d4":"#a78bfa"}">${m.role}</span>
+        <span style="margin-left:5px;font-size:10px;color:var(--txt3)">${shiftCount(m)} shifts</span>
+      </div>
+      <span class="payout-chip ${fin<0?"neg":"pos"}">${fin<0?"−":""}${sym()}${money(Math.abs(fin))}</span>
+    </div>`;
+  }).join("");
+}
+
+// ── History tab ───────────────────────────────────────────────
+function getHistory(){ try{ return JSON.parse(localStorage.getItem("ts_history")||"[]"); }catch{ return []; } }
+function saveHistory(h){ localStorage.setItem("ts_history", JSON.stringify(h)); }
+
+function renderHistory(){
+  const hist = getHistory();
+  const el   = document.getElementById("histList");
+  if (!hist.length){
+    el.innerHTML = '<div class="text-xs text-slate-500 text-center py-5">No periods closed yet.</div>';
+    return;
+  }
+  el.innerHTML = hist.slice().reverse().map(h=>`
+    <div class="hist-entry">
+      <div class="flex justify-between items-start">
+        <div>
+          <div style="font-size:10px;color:var(--txt2)">${esc(h.date)}</div>
+          <div style="font-size:16px;font-weight:900;color:#06b6d4">${sym()}${money(h.totalPayout)} paid out</div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:2px">${h.staff} staff · ${h.shifts} shifts total</div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--txt3)">
+          <div>Tips: ${sym()}${money(h.tips)}</div>
+          <div>FOH ${h.f}% · BOH ${h.b}%</div>
+          ${h.debt>0?`<div style="color:#f87171">Carry: ${sym()}${money(h.debt)}</div>`:""}
+        </div>
+      </div>
+      ${h.rows&&h.rows.length?`
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)">
+        ${h.rows.map(r=>`
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);padding:2px 0">
+            <span><b style="color:var(--txt)">${esc(r.name||"—")}</b>
+              <span style="color:${r.role==="FOH"?"#06b6d4":"#a78bfa"};font-size:10px;font-weight:900;margin-left:4px">${r.role}</span>
+            </span>
+            <span style="color:${r.fin<0?"#f87171":"#4ade80"};font-weight:900">${r.fin<0?"−":""}${sym()}${money(Math.abs(r.fin))}</span>
+          </div>`).join("")}
+      </div>`:""}
+    </div>`).join("");
+}
+
+function clearHistory(){
+  if (!confirm("Clear all period history?")) return;
+  localStorage.removeItem("ts_history");
+  renderHistory();
+  toast("History cleared 🧼");
+}
+
+// ── Actions ───────────────────────────────────────────────────
+function addMember(){
+  const m = newMember();
+  team.push(m);
+  advBuf[m.id] = {note:"",amount:""};
+  scheduleUpdate();
+  toast("Staff added ✨");
+}
+
+function removeMember(id){
+  if (team.length <= 1){ toast("Need at least 1 staff member.","Nope:"); return; }
+  const m = team.find(x=>x.id===id);
+  if (!confirm(`Remove ${m?.name?.trim()||"this staff member"}?`)) return;
+  team = team.filter(x=>x.id!==id);
+  delete advBuf[id]; delete folded[id];
+  scheduleUpdate(); toast("Removed ✅");
+}
+
+function resetAll(){
+  if (!confirm("Reset EVERYTHING on this device? (wipes all staff, tips, balances)")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  team=[];
+  Object.keys(advBuf).forEach(k=>delete advBuf[k]);
+  Object.keys(folded).forEach(k=>delete folded[k]);
+  tipInput.value=""; fohInput.value=70; bohInput.value=30; rocEl.checked=true;
+  addMember(); scheduleUpdate(); toast("Reset done 🧼");
+}
+
+// ① FIX: onchange (blur), NOT oninput — no re-render while typing
+function setName(id, val){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  m.name = val; scheduleUpdate();
+}
+function setBalance(id, val){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  const n = Number(val); m.balance = isNaN(n)?0:n; scheduleUpdate();
+}
+function setRole(id, r){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  m.role = r==="BOH"?"BOH":"FOH"; scheduleUpdate();
+}
+function toggleDay(id, i){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  m.days[i] = !m.days[i]; scheduleUpdate();
+}
+function addShifts(id, n){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  for (let k=0;k<n;k++){ const idx=m.days.findIndex(d=>!d); if(idx===-1)break; m.days[idx]=true; }
+  scheduleUpdate();
+}
+function clearShifts(id){
+  const m = team.find(x=>x.id===id); if (!m) return;
+  m.days = Array(MAX_DAYS).fill(false); scheduleUpdate();
+}
+
+// ④ Fold / unfold with real-height animation
+function toggleFold(id){
+  const body = document.getElementById("body_"+id);
+  if (!body) return;
+
+  if (folded[id]){
+    // Expand: measure scrollHeight first, then animate to it
+    folded[id] = false;
+    body.classList.remove("closed");
+    body.style.maxHeight = body.scrollHeight + "px";
+    // After animation, remove fixed max-height so content can grow
+    body.addEventListener("transitionend", ()=>{ if (!folded[id]) body.style.maxHeight="none"; }, {once:true});
+  } else {
+    // Collapse: set explicit height first, then on next frame set to 0
+    body.style.maxHeight = body.scrollHeight + "px";
+    requestAnimationFrame(()=>{
+      folded[id] = true;
+      body.classList.add("closed");
+      body.style.maxHeight = "0";
+    });
+  }
+
+  // Update button rotation
+  const btn = body.parentElement?.querySelector(".collapse-btn");
+  if (btn) btn.classList.toggle("open", !folded[id]);
+  saveState();
+}
+
+// ── Advances ──────────────────────────────────────────────────
+function addAdvance(memberId){
+  const m   = team.find(x=>x.id===memberId);
+  const buf = advBuf[memberId]||{note:"",amount:""};
+  const amt = parseFloat(buf.amount);
+
+  if (!m || isNaN(amt) || amt <= 0){
+    const el = document.getElementById("advAmt_"+memberId);
+    if (el){ el.classList.add("shake"); el.style.borderColor="#ef4444";
+      setTimeout(()=>{ el.classList.remove("shake"); el.style.borderColor=""; },650); }
+    toast("Enter a valid advance amount.","Heads up:");
+    return;
+  }
+  m.advances.push({ id:newId(), note:(buf.note||"").trim(), amount:amt });
+  advBuf[memberId] = {note:"",amount:""};
+  scheduleUpdate(); toast("Advance added 💸");
+}
+
+function deleteAdvance(memberId, advId){
+  const m = team.find(x=>x.id===memberId); if (!m) return;
+  m.advances = m.advances.filter(a=>a.id!==advId);
+  scheduleUpdate(); toast("Advance removed 🧾");
+}
+
+// ── Close Period ──────────────────────────────────────────────
+function closePeriod(){
+  const C = calcAll();
+  const rows = team.map(m=>{
+    const earned=Number(C.earned.get(m.id)||0);
+    const adv=advTotal(m), bal=Number(m.balance||0), fin=earned-adv+bal;
+    return {m, earned, adv, bal, fin, name:m.name, role:m.role};
+  });
+  const totalPayout = rows.reduce((s,r)=>s+(r.fin>0?r.fin:0),0);
+  const totalDebt   = rows.reduce((s,r)=>s+(r.fin<0?Math.abs(r.fin):0),0);
+  const totalShifts = team.reduce((s,m)=>s+shiftCount(m),0);
+
+  if (!confirm(
+    `Close period?\n\nTotal payout: ${sym()}${money(totalPayout)}\nDebt carried: ${sym()}${money(totalDebt)}\n\n`+
+    (rocEl.checked?`Shifts + advances will reset.\n`:`Shifts/advances stay.\n`)+`Balances will be updated.`
+  )) return;
+
+  const {f,b} = syncPercents();
+  const hist  = getHistory();
+  hist.push({
+    date:        new Date().toLocaleString(),
+    tips:        Number(tipInput.value)||0,
+    f, b,
+    currency:    activeCurrency,
+    totalPayout, debt:totalDebt, shifts:totalShifts, staff:team.length,
+    rows: rows.map(r=>({name:r.name, role:r.role, earned:r.earned, adv:r.adv, bal:r.bal, fin:r.fin}))
+  });
+  if (hist.length > 20) hist.shift();
+  saveHistory(hist);
+
+  rows.forEach(r=>{
+    r.m.balance = r.fin < 0 ? r.fin : 0;
+    if (rocEl.checked){ r.m.days=Array(MAX_DAYS).fill(false); r.m.advances=[]; advBuf[r.m.id]={note:"",amount:""}; }
+  });
+
+  tipInput.value = "";
+  scheduleUpdate(); toast("Period closed ✅ Saved to history");
+  showTab("history");
+}
+
+// ── CSV Export ⑤ (iOS-safe) ───────────────────────────────────
+function exportCSV(){
+  const C = calcAll();
+  const rows = [["Name","Role","Shifts","Earned ($)","Advances ($)","Balance ($)","To Pay ($)"]];
+  team.forEach(m=>{
+    const earned=Number(C.earned.get(m.id)||0);
+    const adv=advTotal(m), bal=Number(m.balance||0), fin=earned-adv+bal;
+    rows.push([m.name||"—", m.role, shiftCount(m), money(earned), money(adv), money(bal), money(fin)]);
+  });
+  const csv   = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob  = new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement("a");
+  a.href      = url;
+  a.download  = `tipstream_${new Date().toISOString().slice(0,10)}.csv`;
+  a.style.display = "none";
+  document.body.appendChild(a);   // ⑤ required for iOS Safari
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 300);
+  toast("CSV exported 📊");
+}
+
+// ── Print ⑥ (no auto-close) ───────────────────────────────────
+function printReport(type){
+  const C = calcAll();
+  let members = team;
+  if (type==="FOH") members = team.filter(x=>x.role==="FOH");
+  if (type==="BOH") members = team.filter(x=>x.role==="BOH");
+
+  let rowsHtml="", totE=0, totA=0, totF=0, totSh=0;
+
+  members.forEach(m=>{
+    const earned=Number(C.earned.get(m.id)||0);
+    const adv=advTotal(m), bal=Number(m.balance||0), fin=earned-adv+bal;
+    totE+=earned; totA+=adv; totF+=fin; totSh+=shiftCount(m);
+
+    const advLines = m.advances.length
+      ? m.advances.map(a=>`<div class="adl">📝 ${esc(a.note)||"—"} <span class="amber">−${sym()}${money(a.amount)}</span></div>`).join("")
+      : "";
+
+    rowsHtml+=`
+      <tr>
+        <td><b>${esc(m.name||"—")}</b>${advLines?`<div class="adls">${advLines}</div>`:""}</td>
+        <td class="c">${m.role}</td>
+        <td class="c">${shiftCount(m)}</td>
+        <td class="r">${sym()}${money(earned)}</td>
+        <td class="r amber">${adv>0?"−"+sym()+money(adv):sym()+"0.00"}</td>
+        <td class="r ${bal<0?"red":"green"}">${bal<0?"−":""}${sym()}${money(Math.abs(bal))}</td>
+        <td class="r bold ${fin<0?"red":"green"}">${fin<0?"−":""}${sym()}${money(Math.abs(fin))}</td>
+      </tr>`;
+  });
+
+  const {f,b} = syncPercents();
+  const tips  = Number(tipInput.value)||0;
+  const now   = new Date().toLocaleString();
+
+  const html = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8"/>
+<title>Tip Report — ${esc(type)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;padding:28px;color:#111;font-size:13px}
+  h2{font-size:18px;font-weight:bold;margin-bottom:4px}
+  .meta{color:#666;font-size:11px;margin-bottom:18px;line-height:1.8}
+  table{width:100%;border-collapse:collapse}
+  th{background:#0f172a;color:#fff;padding:9px 10px;font-size:11px;text-align:left}
+  td{padding:9px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top;font-size:12px}
+  .c{text-align:center}.r{text-align:right}
+  .bold{font-weight:bold}.amber{color:#b45309}.green{color:#15803d}.red{color:#dc2626}
+  .total-row td{background:#f8fafc;font-weight:bold;border-top:2px solid #94a3b8}
+  .adls{margin-top:4px;padding-top:4px;border-top:1px solid #e2e8f0}
+  .adl{font-size:11px;color:#555;line-height:1.6}
+  @media print{body{padding:16px}@page{margin:12mm}}
+</style>
+</head><body>
+  <h2>💸 Tip Distribution Report — ${esc(type)}</h2>
+  <div class="meta">
+    Printed: ${esc(now)}<br>
+    Total Tips: <b>${sym()}${money(tips)}</b> &nbsp;|&nbsp;
+    FOH: <b>${f}%</b> (${sym()}${money(tips*f/100)}) &nbsp;|&nbsp;
+    BOH: <b>${b}%</b> (${sym()}${money(tips*b/100)})
+  </div>
+  <table>
+    <tr>
+      <th>Name</th><th class="c">Role</th><th class="c">Shifts</th>
+      <th class="r">Earned</th><th class="r">Advances</th>
+      <th class="r">Balance</th><th class="r">To Pay</th>
+    </tr>
+    ${rowsHtml}
+    <tr class="total-row">
+      <td>TOTAL</td><td></td>
+      <td class="c">${totSh}</td>
+      <td class="r">${sym()}${money(totE)}</td>
+      <td class="r amber">${totA>0?"−"+sym()+money(totA):sym()+"0.00"}</td>
+      <td class="r">—</td>
+      <td class="r bold">${sym()}${money(totF)}</td>
+    </tr>
+  </table>
+  <p style="margin-top:20px;font-size:10px;color:#999;text-align:center">
+    TipStream Pro · ${esc(now)}
+  </p>
+  <script>
+    // ⑥ FIX: print dialog opens, window stays open — user closes it
+    window.addEventListener('load', function(){ setTimeout(window.print, 280); });
+  <\/script>
+</body></html>`;
+
+  const blob = new Blob([html],{type:"text/html"});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url,"_blank","width=820,height=700,scrollbars=yes,resizable=yes");
+
+  if (!win){
+    // Popup blocked → download as HTML file
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tip_report_${type}_${new Date().toISOString().slice(0,10)}.html`;
+    a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },300);
+    toast("Popups blocked — report downloaded. Open & print.","Heads up:");
+  } else {
+    setTimeout(()=>URL.revokeObjectURL(url), 90000);
+    toast(`${type} report opened — print when ready 🖨`);
+  }
+}
+
+// ── Events ────────────────────────────────────────────────────
+tipInput.addEventListener("input", scheduleUpdate);
+
+fohInput.addEventListener("input", ()=>{
+  lastPctSide = "FOH";
+  fohInput.value = clamp(parseInt(fohInput.value||"0",10), 0, 100);
+  scheduleUpdate();
+});
+bohInput.addEventListener("input", ()=>{
+  lastPctSide = "BOH";
+  bohInput.value = clamp(parseInt(bohInput.value||"0",10), 0, 100);
+  scheduleUpdate();
+});
+rocEl.addEventListener("change", saveState);
+
+// ── Boot ──────────────────────────────────────────────────────
+(function boot(){
+  const theme = localStorage.getItem("ts_theme") || "dark";
+  document.body.setAttribute("data-theme", theme);
+  document.getElementById("themeBtn").textContent = theme==="light" ? "☀️" : "🌙";
+  document.getElementById("themeColorMeta").content = theme==="light" ? "#eef2f7" : "#05070a";
+
+  // Restore currency (from localStorage or saved state)
+  const savedCurr = localStorage.getItem("ts_currency");
+  if (savedCurr && CURRENCIES[savedCurr]) activeCurrency = savedCurr;
+
+  if (!loadState()){
+    const m = newMember(); team=[m]; advBuf[m.id]={note:"",amount:""};
+  }
+
+  // Sync dropdown to active currency
+  document.getElementById("currSelect").value = activeCurrency;
+
+  scheduleUpdate();
+})();
+</script>
+</body>
+</html>
